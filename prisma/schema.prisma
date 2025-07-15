@@ -14,15 +14,14 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    imageUrl  String?
-    firstName String?
-    lastName  String?
-
-    emailAddress String @unique
-
-    credits Int @default(150)
+    imageUrl     String?
+    firstName    String?
+    lastName     String?
+    emailAddress String  @unique
+    credits      Int     @default(150)
 
     userToProjects UserToProject[]
+    questionAsked  Question[]
 }
 
 model Project {
@@ -38,6 +37,7 @@ model Project {
     userToProjects       UserToProject[]
     commits              Commit[]
     sourceCodeEmbeddings SourceCodeEmbedding[]
+    savedQuestions       Question[]
 }
 
 model UserToProject {
@@ -45,10 +45,10 @@ model UserToProject {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    Project   Project @relation(fields: [projectId], references: [id])
+    project   Project @relation(fields: [projectId], references: [id])
     projectId String
 
-    User   User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id])
     userId String
 
     @@unique([userId, projectId])
@@ -61,8 +61,25 @@ model SourceCodeEmbedding {
     fileName         String
     summary          String
 
-    Project   Project @relation(fields: [projectId], references: [id])
+    project   Project @relation(fields: [projectId], references: [id])
     projectId String
+}
+
+model Question {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    question String
+    answer   String
+
+    filesReferences Json?
+
+    project   Project @relation(fields: [projectId], references: [id])
+    projectId String
+
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
 }
 
 model Commit {
@@ -70,7 +87,7 @@ model Commit {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    Project   Project @relation(fields: [projectId], references: [id])
+    project   Project @relation(fields: [projectId], references: [id])
     projectId String
 
     commitMessage      String
